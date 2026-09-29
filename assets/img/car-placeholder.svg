@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Atlas vehicle photo coming soon</title>
+  <desc id="desc">A simple car illustration on a pale green background.</desc>
+  <rect width="1200" height="800" fill="#edf3ee"/>
+  <path d="M0 570h1200v230H0z" fill="#dce8de"/>
+  <path d="M252 530c18-75 59-141 119-173l87-46c36-19 72-29 113-29h162c62 0 113 26 150 77l91 124c50 17 81 56 81 107v72H176v-64c0-35 28-63 76-68z" fill="#185b3a"/>
+  <path d="m450 350-77 41c-36 20-64 69-77 116h259V350zM495 350v157h382l-85-116c-26-28-53-41-91-41z" fill="#c5dfcc"/>
+  <path d="M176 568h878c34 0 61 27 61 61v33H176z" fill="#0e3f28"/>
+  <circle cx="371" cy="626" r="73" fill="#18231e"/><circle cx="371" cy="626" r="35" fill="#dbe5de"/>
+  <circle cx="909" cy="626" r="73" fill="#18231e"/><circle cx="909" cy="626" r="35" fill="#dbe5de"/>
+  <text x="600" y="740" fill="#476653" font-family="Arial,sans-serif" font-size="26" letter-spacing="7" text-anchor="middle">ATLAS AUTOMOTIVE</text>
+</svg>

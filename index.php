@@ -34,6 +34,7 @@ $featured = $pdo->query("
     ORDER BY (v.availability_status = 'available') DESC, v.created_at DESC
     LIMIT 6
 ")->fetchAll();
+$heroVehicle = $featured[0] ?? null;
 
 $locations = $pdo->query("SELECT DISTINCT location FROM vehicles WHERE location <> '' ORDER BY location")
                  ->fetchAll(PDO::FETCH_COLUMN);
@@ -58,17 +59,34 @@ require __DIR__ . '/includes/header.php';
 <section class="hero">
   <div class="container hero-inner">
     <div class="hero-copy reveal">
-      <span class="eyebrow">Kigali · Rwanda</span>
-      <h1>Atlas Automotive Services</h1>
-      <p class="hero-lede">Find the right car for your journey.</p>
-      <p class="hero-sub">Browse trusted vehicles, check availability, and connect directly with the owner.</p>
+      <span class="eyebrow">Car hire in Kigali, Rwanda</span>
+      <h1>Your next Kigali journey starts here.</h1>
+      <p class="hero-lede">The right car. A clear daily price. A direct line to Atlas.</p>
+      <p class="hero-sub">Choose from our fleet, check dates that work for you, and ask our team about your trip on WhatsApp.</p>
+      <div class="hero-actions">
+        <a class="btn btn--primary" href="<?= url('/cars') ?>">Explore the fleet</a>
+        <a class="btn btn--ghost" href="<?= url('/contact') ?>">Talk to Atlas</a>
+      </div>
+      <ul class="hero-promises" aria-label="What to expect">
+        <li>Daily prices shown upfront</li>
+        <li>Local Kigali team</li>
+        <li>Direct WhatsApp inquiries</li>
+        <?php if ((int)$counts['available'] > 0): ?><li><?= (int)$counts['available'] ?> cars marked available</li><?php endif; ?>
+      </ul>
     </div>
 
-    <?php if ((int)$counts['available'] > 0): ?>
-      <div class="hero-stat reveal">
-        <span class="hero-stat-num"><?= (int)$counts['available'] ?></span>
-        <span class="hero-stat-label">cars available now</span>
-      </div>
+    <?php if ($heroVehicle): ?>
+      <aside class="hero-visual reveal" aria-label="Featured vehicle">
+        <img src="<?= e(vehicle_image_url($heroVehicle['thumb'])) ?>" alt="<?= e($heroVehicle['brand'] . ' ' . $heroVehicle['model'] . ' ' . $heroVehicle['year']) ?>" fetchpriority="high">
+        <div class="hero-vehicle-card">
+          <span class="hero-vehicle-kicker">A good place to start</span>
+          <h2><?= e($heroVehicle['brand'] . ' ' . $heroVehicle['model']) ?></h2>
+          <div class="hero-vehicle-meta"><span><?= (int)$heroVehicle['year'] ?> · <?= e($heroVehicle['type']) ?></span><strong><?= e(money($heroVehicle['price_per_day'])) ?><small>/day</small></strong></div>
+          <a href="<?= e(url('/cars/' . $heroVehicle['slug'])) ?>">View this car <span aria-hidden="true">→</span></a>
+        </div>
+      </aside>
+    <?php else: ?>
+      <div class="hero-visual hero-visual--empty" aria-hidden="true"></div>
     <?php endif; ?>
   </div>
 </section>
@@ -76,6 +94,7 @@ require __DIR__ . '/includes/header.php';
 <!-- ============ SEARCH ============ -->
 <section class="search-band">
   <div class="container">
+    <div class="search-intro"><span class="eyebrow">Find your fit</span><h2>Where are you headed?</h2><p>Choose your dates and budget. Atlas will confirm the details with you directly.</p></div>
     <form class="search-bar" method="get" action="<?= url('/cars') ?>" novalidate>
       <div class="search-field">
         <label for="s-location">Location</label>
@@ -132,8 +151,8 @@ require __DIR__ . '/includes/header.php';
   <div class="container">
     <header class="section-head reveal">
       <div>
-        <span class="eyebrow">Featured</span>
-        <h2>Vehicles ready for the road</h2>
+        <span class="eyebrow">The Atlas fleet</span>
+        <h2>Pick the car that fits your plans.</h2>
       </div>
       <a class="section-link" href="<?= url('/cars') ?>">View all cars →</a>
     </header>
@@ -155,9 +174,9 @@ require __DIR__ . '/includes/header.php';
   <div class="container">
     <div class="how-grid">
       <div class="how-intro reveal">
-        <span class="eyebrow">How Atlas works</span>
-        <h2>No booking forms. No waiting.</h2>
-        <p class="how-lede">We list the cars. You pick one. WhatsApp does the rest — the conversation goes straight to the person who owns and manages every vehicle on this site.</p>
+        <span class="eyebrow">Easy from the first click</span>
+        <h2>One simple conversation gets you moving.</h2>
+        <p class="how-lede">Browse the real fleet, compare daily rates, and message the Atlas team about dates and pickup. We’ll help you find the right fit.</p>
         <a class="btn btn--onpaper" href="<?= url('/cars') ?>">Browse available cars</a>
       </div>
 

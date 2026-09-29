@@ -40,7 +40,13 @@ $dateRangeValid = $pickupDate && $pickupDate->format($dateFormat) === $pickup
     && $returnDate && $returnDate->format($dateFormat) === $return
     && $pickupDate >= new DateTimeImmutable('today')
     && $returnDate > $pickupDate;
-$wa = whatsapp_url($pdo, $car, $dateRangeValid ? $pickup : null, $dateRangeValid ? $return : null);
+$blockedForDates = false;
+if ($dateRangeValid) {
+    $blockCheck = $pdo->prepare("SELECT 1 FROM vehicle_availability_blocks WHERE vehicle_id = ? AND start_date <= ? AND end_date >= ? LIMIT 1");
+    $blockCheck->execute([$car['id'], $return, $pickup]);
+    $blockedForDates = (bool)$blockCheck->fetchColumn();
+}
+$wa = whatsapp_url($pdo, $car, $dateRangeValid ? $pickup : null, $dateRangeValid ? $return : null, $blockedForDates);
 
 $related = $pdo->prepare("
     SELECT v.*, (
@@ -57,7 +63,8 @@ $related->execute([$car['id'], $car['type']]);
 $relatedCars = $related->fetchAll();
 
 $title  = trim($car['brand'] . ' ' . $car['model'] . ' ' . $car['year']);
-$isAvail = $car['availability_status'] === 'available';
+$isAvail = $car['availability_status'] === 'available' && !$blockedForDates;
+$canAskOtherDates = $blockedForDates && $car['availability_status'] === 'available';
 
 $pageTitle = $title . ' — ' . SITE_NAME;
 $pageDesc  = mb_substr(trim(strip_tags((string)$car['description'])), 0, 155);
@@ -84,8 +91,8 @@ require __DIR__ . '/includes/header.php';
         <span class="eyebrow"><?= e($car['type']) ?> · <?= e($car['location']) ?></span>
         <h1><?= e($title) ?></h1>
       </div>
-      <span class="status status--<?= e($car['availability_status']) ?> status--lg">
-        <?= e(status_label($car['availability_status'])) ?>
+      <span class="status status--<?= e($blockedForDates ? 'rented' : $car['availability_status']) ?> status--lg">
+        <?= $blockedForDates ? 'Unavailable for selected dates' : e(status_label($car['availability_status'])) ?>
       </span>
     </header>
 
@@ -204,8 +211,8 @@ require __DIR__ . '/includes/header.php';
             <span class="booking-price-unit">/ day</span>
           </div>
 
-          <span class="status status--<?= e($car['availability_status']) ?> status--block">
-            <?= e(status_label($car['availability_status'])) ?>
+          <span class="status status--<?= e($blockedForDates ? 'rented' : $car['availability_status']) ?> status--block">
+            <?= $blockedForDates ? 'Unavailable for selected dates' : e(status_label($car['availability_status'])) ?>
           </span>
 
           <?php if ($isAvail): ?>
@@ -216,6 +223,9 @@ require __DIR__ . '/includes/header.php';
               Chat with Owner on WhatsApp
             </a>
             <p class="booking-note">Opens WhatsApp with a message about this car already written.</p>
+          <?php elseif ($canAskOtherDates): ?>
+            <a class="btn btn--whatsapp btn--block" href="<?= e($wa) ?>" target="_blank" rel="noopener">Ask about other dates on WhatsApp</a>
+            <p class="booking-note">Those dates are already blocked. Message Atlas for another date range.</p>
           <?php else: ?>
             <button class="btn btn--block" disabled aria-disabled="true">
               <?= $car['availability_status'] === 'rented' ? 'Currently rented' : 'Currently unavailable' ?>
@@ -246,7 +256,7 @@ require __DIR__ . '/includes/header.php';
 </section>
 
 <!-- ============ MOBILE STICKY CTA ============ -->
-<?php if ($isAvail): ?>
+<?php if ($isAvail || $canAskOtherDates): ?>
   <div class="mobile-cta">
     <div class="mobile-cta-price">
       <strong><?= e(money($car['price_per_day'])) ?></strong>
@@ -256,7 +266,7 @@ require __DIR__ . '/includes/header.php';
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M20.52 3.48A11.9 11.9 0 0 0 12.05 0C5.5 0 .2 5.3.2 11.85c0 2.09.55 4.13 1.6 5.93L0 24l6.36-1.67a11.86 11.86 0 0 0 5.69 1.45h.01c6.55 0 11.85-5.3 11.85-11.85 0-3.17-1.23-6.15-3.39-8.45zM12.06 21.5h-.01a9.7 9.7 0 0 1-4.94-1.36l-.35-.21-3.77.99 1.01-3.68-.23-.38a9.67 9.67 0 0 1-1.48-5.16c0-5.35 4.35-9.7 9.7-9.7 2.59 0 5.03 1.01 6.86 2.85a9.63 9.63 0 0 1 2.84 6.86c0 5.36-4.35 9.7-9.63 9.7zm5.32-7.26c-.29-.15-1.72-.85-1.99-.95-.27-.1-.46-.15-.66.15s-.76.95-.93 1.14c-.17.19-.34.21-.63.07-.29-.15-1.23-.46-2.34-1.45-.86-.77-1.45-1.72-1.62-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.44-.51.15-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.07-.15-.66-1.58-.9-2.16-.24-.57-.48-.49-.66-.5l-.56-.01a1.08 1.08 0 0 0-.78.37c-.27.29-1.02.99-1.02 2.42s1.04 2.81 1.18 3c.15.19 2.05 3.13 4.96 4.39.69.3 1.23.48 1.66.61.69.22 1.32.19 1.82.12.56-.08 1.72-.7 1.96-1.38.24-.68.24-1.26.17-1.38-.07-.12-.27-.19-.56-.34z"/>
       </svg>
-      Chat on WhatsApp
+      <?= $canAskOtherDates ? 'Ask about other dates' : 'Chat on WhatsApp' ?>
     </a>
   </div>
 <?php endif; ?>

@@ -7,6 +7,7 @@ A PHP and MySQL car-rental website for Atlas Automotive Services in Kigali, Rwan
 1. Copy this folder to `C:\xampp\htdocs\atlas-car-rental`.
 2. Start Apache and MySQL from the XAMPP Control Panel.
 3. In phpMyAdmin, import `sql/schema.sql`, then import `sql/seed.sql`.
+   If upgrading an existing database, instead import `sql/migrations/001_vehicle_availability_blocks.sql`.
 4. Open `http://localhost/atlas-car-rental/`.
 
 The sample fleet photos are included under `assets/uploads/sample/`. Database settings can be overridden with `ATLAS_DB_HOST`, `ATLAS_DB_NAME`, `ATLAS_DB_USER`, and `ATLAS_DB_PASS` environment variables. Keep production credentials outside the repository and set `ATLAS_DEBUG=0` in production.
@@ -31,5 +32,6 @@ The command refuses to create another administrator if an admin account already 
 - View vehicle details and photos.
 - Contact Atlas through pre-filled WhatsApp messages.
 - Store vehicle, image, inquiry, and site settings data in MySQL.
+- Manage vehicles, fleet photos, and date blocks in the admin area at `/admin/`.
 
-Pickup and return dates are passed to WhatsApp for confirmation; the current database does not yet maintain a reservation calendar.
+Pickup and return searches exclude recorded bookings and maintenance blocks. Atlas still confirms each request directly on WhatsApp.

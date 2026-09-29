@@ -1,6 +1,8 @@
 RewriteEngine On
 RewriteBase /atlas-car-rental/
 
+RewriteRule ^setup-admin\.php$ - [L]
+
 RewriteRule ^cars/?$                cars.php              [L,QSA]
 RewriteRule ^cars/([a-z0-9-]+)/?$   car.php?slug=$1       [L,QSA]
 RewriteRule ^about/?$               about.php             [L]

@@ -30,6 +30,41 @@
     });
   }
 
+  /* ---------- Homepage date range ---------- */
+  const searchForm = document.querySelector('.search-bar');
+  const pickupDate = document.getElementById('s-pickup');
+  const returnDate = document.getElementById('s-return');
+  if (searchForm && pickupDate && returnDate) {
+    const localToday = () => {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    };
+    const nextDay = (value) => {
+      const [year, month, day] = value.split('-').map(Number);
+      const date = new Date(year, month - 1, day + 1);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    };
+    pickupDate.min = localToday();
+    const syncReturnDate = () => {
+      returnDate.min = pickupDate.value ? nextDay(pickupDate.value) : localToday();
+      returnDate.setCustomValidity('');
+    };
+    pickupDate.addEventListener('change', syncReturnDate);
+    syncReturnDate();
+    searchForm.addEventListener('submit', (event) => {
+      returnDate.setCustomValidity('');
+      if ((pickupDate.value && !returnDate.value) || (!pickupDate.value && returnDate.value)) {
+        event.preventDefault();
+        returnDate.setCustomValidity('Choose both pickup and return dates to check availability.');
+        returnDate.reportValidity();
+      } else if (pickupDate.value && returnDate.value && returnDate.value <= pickupDate.value) {
+        event.preventDefault();
+        returnDate.setCustomValidity('Return must be after pickup.');
+        returnDate.reportValidity();
+      }
+    });
+  }
+
   /* ---------- Mobile filters drawer (Cars page) ---------- */
   const filters      = document.getElementById('filters');
   const filtersOpen  = document.getElementById('filters-open');

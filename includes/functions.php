@@ -39,9 +39,13 @@ function status_label(string $status): string {
 /** First image URL for a vehicle, or a branded placeholder. */
 function vehicle_image_url(?string $url): string {
     if (!$url) return PLACEHOLDER_IMG;
-    $rel = preg_replace('#^' . preg_quote(BASE_URL, '#') . '#', '', $url);
-    $fs  = BASE_PATH . $rel;
-    return is_file($fs) ? $url : PLACEHOLDER_IMG;
+    $path = parse_url($url, PHP_URL_PATH);
+    if (!is_string($path) || $path === '') return PLACEHOLDER_IMG;
+    $rel = '/' . ltrim($path, '/');
+    $base = rtrim(BASE_URL, '/');
+    $filePath = $base !== '' && str_starts_with($rel, $base . '/') ? substr($rel, strlen($base)) : $rel;
+    if (!is_file(BASE_PATH . $filePath)) return PLACEHOLDER_IMG;
+    return $base !== '' && str_starts_with($rel, $base . '/') ? $rel : url($rel);
 }
 
 /** Fetch all images for a vehicle, ordered. */

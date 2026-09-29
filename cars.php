@@ -45,6 +45,16 @@ if (in_array($status, ['available', 'rented', 'unavailable'], true)) {
     $where[] = 'v.availability_status = :status';
     $params[':status'] = $status;
 }
+if ($dateRangeValid) {
+    $where[] = "v.availability_status = 'available' AND NOT EXISTS (
+        SELECT 1 FROM vehicle_availability_blocks b
+        WHERE b.vehicle_id = v.id
+          AND b.start_date <= :return_date
+          AND b.end_date >= :pickup_date
+    )";
+    $params[':pickup_date'] = $pick;
+    $params[':return_date'] = $ret;
+}
 
 $sql = "SELECT v.*, (
             SELECT image_url FROM vehicle_images
@@ -184,6 +194,11 @@ require __DIR__ . '/includes/header.php';
 
     <!-- ---------- Results ---------- -->
     <div class="results">
+      <?php if (($pick !== '' || $ret !== '') && !$dateRangeValid): ?>
+        <p class="availability-notice" role="status">Choose a pickup date today or later and a return date after pickup to check availability.</p>
+      <?php elseif ($dateRangeValid): ?>
+        <p class="availability-notice" role="status">Showing cars with no booking or maintenance block from <?= e($pick) ?> to <?= e($ret) ?>. Atlas will confirm your request on WhatsApp.</p>
+      <?php endif; ?>
       <div class="results-bar">
         <div class="results-count">
           <strong><?= count($cars) ?></strong>
@@ -223,9 +238,6 @@ require __DIR__ . '/includes/header.php';
           <a class="btn btn--primary" href="<?= url('/cars') ?>">Reset search</a>
         </div>
       <?php else: ?>
-        <?php if ($dateRangeValid): ?>
-          <p class="text-muted">Dates are included in your WhatsApp inquiry. Availability for those dates will be confirmed directly with Atlas.</p>
-        <?php endif; ?>
         <div class="car-grid">
           <?php foreach ($cars as $v): ?>
             <?php $v['detail_query'] = $dateRangeValid ? '?' . http_build_query(['pickup' => $pick, 'return' => $ret]) : ''; ?>

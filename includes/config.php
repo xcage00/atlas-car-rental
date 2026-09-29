@@ -16,7 +16,7 @@ define('BASE_PATH', dirname(__DIR__));
 define('UPLOAD_PATH', BASE_PATH . '/assets/uploads');
 define('UPLOAD_URL',  BASE_URL . '/assets/uploads');
 define('SAMPLE_URL',  BASE_URL . '/assets/uploads/sample');
-define('PLACEHOLDER_IMG', BASE_URL . '/assets/img/car-placeholder.jpg');
+define('PLACEHOLDER_IMG', BASE_URL . '/assets/img/car-placeholder.svg');
 
 /* ---------- Site ---------- */
 define('SITE_NAME', 'Atlas Automotive Services');
