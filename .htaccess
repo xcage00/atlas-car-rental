@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase /atlas-car-rental/
+
+RewriteRule ^cars/?$                cars.php              [L,QSA]
+RewriteRule ^cars/([a-z0-9-]+)/?$   car.php?slug=$1       [L,QSA]
+RewriteRule ^about/?$               about.php             [L]
+RewriteRule ^contact/?$             contact.php           [L]
+
+RewriteRule ^includes/ - [F,L]

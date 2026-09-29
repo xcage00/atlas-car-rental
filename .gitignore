@@ -1,0 +1,21 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+/atlas_car_rental.sql
+
+# Editor and operating system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs and temporary files
+*.log
+*.tmp
+/tmp/
+
+# Locally uploaded customer or fleet media; keep the bundled sample fleet
+/assets/uploads/*
+!/assets/uploads/sample/
+!/assets/uploads/sample/**
